@@ -1,4 +1,4 @@
-<main class="tasks-root">
+﻿<main class="tasks-root">
     <header class="tasks-header">
         <h1>Our Tasks</h1>
         <div class="tasks-controls">
@@ -16,75 +16,32 @@
 
     <section aria-labelledby="taskListLabel">
         <h2 id="taskListLabel" class="visually-hidden">Task list</h2>
-
-        <ul class="task-grid" id="taskList">
-            <li class="task" data-status="completed">
-                <article>
-                    <label class="task-main">
-                        <input type="checkbox" checked aria-label="Mark Learn Git & GitHub complete">
-                        <div>
-                            <h3>Learn Git & GitHub</h3>
-                            <p class="meta"><span class="status-badge">Completed</span></p>
-                        </div>
-                    </label>
-                    <div class="task-actions">
-                        <button class="btn btn-secondary" aria-label="Edit Learn Git & GitHub">Edit</button>
-                        <button class="btn btn-danger" aria-label="Delete Learn Git & GitHub">Delete</button>
-                    </div>
-                </article>
-            </li>
-
-            <li class="task" data-status="in-progress">
-                <article>
-                    <label class="task-main">
-                        <input type="checkbox" aria-label="Mark Build Team Task Board complete">
-                        <div>
-                            <h3>Build Team Task Board</h3>
-                            <p class="meta"><span class="status-badge">In Progress</span></p>
-                        </div>
-                    </label>
-                    <div class="task-actions">
-                        <button class="btn btn-secondary" aria-label="Edit Build Team Task Board">Edit</button>
-                        <button class="btn btn-danger" aria-label="Delete Build Team Task Board">Delete</button>
-                    </div>
-                </article>
-            </li>
-
-            <li class="task" data-status="pending">
-                <article>
-                    <label class="task-main">
-                        <input type="checkbox" aria-label="Mark Test Pull Requests complete">
-                        <div>
-                            <h3>Test Pull Requests</h3>
-                            <p class="meta"><span class="status-badge">Pending</span></p>
-                        </div>
-                    </label>
-                    <div class="task-actions">
-                        <button class="btn btn-secondary" aria-label="Edit Test Pull Requests">Edit</button>
-                        <button class="btn btn-danger" aria-label="Delete Test Pull Requests">Delete</button>
-                    </div>
-                </article>
-            </li>
-
-            <li class="task" data-status="pending">
-                <article>
-                    <label class="task-main">
-                        <input type="checkbox" aria-label="Mark Deploy Website complete">
-                        <div>
-                            <h3>Deploy Website</h3>
-                            <p class="meta"><span class="status-badge">Pending</span></p>
-                        </div>
-                    </label>
-                    <div class="task-actions">
-                        <button class="btn btn-secondary" aria-label="Edit Deploy Website">Edit</button>
-                        <button class="btn btn-danger" aria-label="Delete Deploy Website">Delete</button>
-                    </div>
-                </article>
-            </li>
-        </ul>
+        <ul class="task-grid" id="taskList"></ul>
     </section>
 
     <p class="tasks-note">Tip: Use the search box or filter to find tasks quickly.</p>
+
+    <div id="taskFormContainer" style="display:none; margin-top:1rem;">
+        <form id="taskForm" style="max-width:420px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:1rem; box-shadow:0 1px 3px rgba(16,24,40,0.06);">
+            <h3 style="margin-top:0; margin-bottom:0.75rem;">Create New Task</h3>
+            <label style="display:block; font-weight:600; margin-bottom:0.75rem;">
+                Task title
+                <input id="taskTitleInput" type="text" placeholder="Enter task title" required style="width:100%; margin-top:0.35rem; padding:0.65rem 0.75rem; border:1px solid #d1d5db; border-radius:8px;">
+            </label>
+            <label style="display:block; font-weight:600; margin-bottom:0.75rem;">
+                Status
+                <select id="taskStatusInput" style="width:100%; margin-top:0.35rem; padding:0.65rem 0.75rem; border:1px solid #d1d5db; border-radius:8px;">
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </label>
+            <div style="display:flex; gap:0.75rem;">
+                <button type="submit" class="btn btn-secondary" style="background:#111827;color:#fff;">Save Task</button>
+                <button type="button" id="cancelTaskForm" class="btn btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
 
     <style>
         body{margin:0;background:#f5f7fb;color:#111827;transition:background-color .2s ease,color .2s ease}
@@ -106,7 +63,6 @@
         li[data-status="completed"] .status-badge{background:#dcfce7;color:#166534}
         li[data-status="in-progress"] .status-badge{background:#fef3c7;color:#92400e}
         li[data-status="pending"] .status-badge{background:#e0f2fe;color:#075985}
-
         .fab{position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;display:inline-grid;place-items:center;font-size:28px;background:#2563eb;color:#fff;border:none;box-shadow:0 8px 24px rgba(37,99,235,0.18);cursor:pointer}
         .fab:focus{outline:3px solid rgba(37,99,235,0.18);outline-offset:4px}
         .btn{padding:.4rem .6rem;border-radius:6px;border:1px solid transparent;font-size:.85rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
@@ -133,22 +89,120 @@
             const filter = document.getElementById('statusFilter');
             const list = document.getElementById('taskList');
             const themeToggle = document.getElementById('themeToggle');
+            const taskFormContainer = document.getElementById('taskFormContainer');
+            const taskForm = document.getElementById('taskForm');
+            const taskTitleInput = document.getElementById('taskTitleInput');
+            const taskStatusInput = document.getElementById('taskStatusInput');
+            const cancelTaskForm = document.getElementById('cancelTaskForm');
 
-            function normalize(s){return s.trim().toLowerCase()}
+            function normalize(value) {
+                return (value || '').trim().toLowerCase();
+            }
 
-            function applyFilters(){
-                const q = normalize(search.value);
-                const status = filter.value;
-                Array.from(list.children).forEach(li=>{
+            function statusLabel(status) {
+                const labels = {
+                    completed: 'Completed',
+                    'in-progress': 'In Progress',
+                    pending: 'Pending'
+                };
+                return labels[status] || 'Pending';
+            }
+
+            function renderTasks(tasks) {
+                list.innerHTML = '';
+
+                tasks.forEach((task) => {
+                    const li = document.createElement('li');
+                    li.className = 'task';
+                    li.dataset.status = task.status;
+                    li.innerHTML = `
+                        <article>
+                            <label class="task-main">
+                                <input type="checkbox" ${task.status === 'completed' ? 'checked' : ''} aria-label="Mark ${task.title} complete">
+                                <div>
+                                    <h3>${task.title}</h3>
+                                    <p class="meta"><span class="status-badge">${statusLabel(task.status)}</span></p>
+                                </div>
+                            </label>
+                            <div class="task-actions">
+                                <button class="btn btn-secondary" data-action="edit" type="button">Edit</button>
+                                <button class="btn btn-danger" data-action="delete" type="button">Delete</button>
+                            </div>
+                        </article>
+                    `;
+
+                    const checkbox = li.querySelector('input[type="checkbox"]');
+                    checkbox.addEventListener('change', async (event) => {
+                        await updateTask(task.id, { status: event.target.checked ? 'completed' : 'in-progress' });
+                        await loadTasks();
+                    });
+
+                    li.querySelector('[data-action="edit"]').addEventListener('click', async () => {
+                        const updatedTitle = prompt('Edit task title', task.title);
+                        if (!updatedTitle || !updatedTitle.trim()) return;
+                        await updateTask(task.id, { title: updatedTitle.trim() });
+                        await loadTasks();
+                    });
+
+                    li.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+                        if (!confirm(`Delete task: ${task.title}?`)) return;
+                        await deleteTask(task.id);
+                        await loadTasks();
+                    });
+
+                    list.appendChild(li);
+                });
+
+                applyFilters();
+            }
+
+            function applyFilters() {
+                const query = normalize(search.value);
+                const selectedStatus = filter.value;
+
+                Array.from(list.children).forEach((li) => {
                     const title = normalize(li.querySelector('h3').textContent);
-                    const itemStatus = li.getAttribute('data-status');
-                    const matchesQuery = q === '' || title.includes(q);
-                    const matchesStatus = status === 'all' || itemStatus === status;
-                    li.style.display = (matchesQuery && matchesStatus) ? '' : 'none';
+                    const itemStatus = li.dataset.status;
+                    const matchesQuery = query === '' || title.includes(query);
+                    const matchesStatus = selectedStatus === 'all' || itemStatus === selectedStatus;
+                    li.style.display = matchesQuery && matchesStatus ? '' : 'none';
                 });
             }
 
-            function toggleTheme(){
+            async function loadTasks() {
+                try {
+                    const response = await fetch('/api/tasks');
+                    if (!response.ok) throw new Error('Failed to load tasks');
+                    const tasks = await response.json();
+                    renderTasks(tasks);
+                } catch (error) {
+                    list.innerHTML = '<li class="task"><article><div><h3>Unable to load tasks</h3><p class="meta"><span class="status-badge">Error</span></p></div></article></li>';
+                }
+            }
+
+            async function updateTask(id, updates) {
+                const response = await fetch(`/api/tasks/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Task update failed');
+                }
+            }
+
+            async function deleteTask(id) {
+                const response = await fetch(`/api/tasks/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Task delete failed');
+                }
+            }
+
+            function toggleTheme() {
                 document.body.classList.toggle('dark-theme');
                 const isDark = document.body.classList.contains('dark-theme');
                 themeToggle.textContent = isDark ? 'Light Theme' : 'Toggle Theme';
@@ -156,7 +210,7 @@
             }
 
             const savedTheme = localStorage.getItem('taskTheme');
-            if(savedTheme === 'dark'){
+            if (savedTheme === 'dark') {
                 document.body.classList.add('dark-theme');
                 themeToggle.textContent = 'Light Theme';
             }
@@ -165,43 +219,47 @@
             search.addEventListener('input', applyFilters);
             filter.addEventListener('change', applyFilters);
 
-            // toggle completed state from checkbox
-            list.addEventListener('change', (e)=>{
-                if(e.target.type === 'checkbox'){
-                    const li = e.target.closest('li');
-                    if(e.target.checked){
-                        li.setAttribute('data-status','completed');
-                        li.querySelector('.meta').textContent = 'Completed';
-                    } else {
-                        li.setAttribute('data-status','in-progress');
-                        li.querySelector('.meta').textContent = 'In Progress';
+            function showTaskForm() {
+                taskFormContainer.style.display = 'block';
+                taskTitleInput.focus();
+            }
+
+            function hideTaskForm() {
+                taskFormContainer.style.display = 'none';
+                taskForm.reset();
+                taskStatusInput.value = 'pending';
+            }
+
+            document.getElementById('addTaskFab')?.addEventListener('click', showTaskForm);
+
+            if (taskForm) {
+                taskForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const title = taskTitleInput.value.trim();
+                    const status = taskStatusInput.value;
+
+                    if (!title) return;
+
+                    const response = await fetch('/api/tasks', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, status })
+                    });
+
+                    if (response.ok) {
+                        hideTaskForm();
+                        await loadTasks();
                     }
-                    applyFilters();
-                }
-            });
+                });
+            }
+
+            if (cancelTaskForm) {
+                cancelTaskForm.addEventListener('click', hideTaskForm);
+            }
+
+            loadTasks();
         })();
     </script>
 
     <button id="addTaskFab" class="fab" aria-label="Add Task">+</button>
-
-    <script>
-        (function(){
-            const fab = document.getElementById('addTaskFab');
-            const list = document.getElementById('taskList');
-            function createTask(title){
-                const li = document.createElement('li');
-                li.className = 'task';
-                li.setAttribute('data-status','pending');
-                li.innerHTML = `<article>\n                    <label class="task-main">\n                        <input type="checkbox" aria-label="Mark ${title} complete">\n                        <div>\n                            <h3>${title}</h3>\n                            <p class="meta"><span class="status-badge">Pending</span></p>\n                        </div>\n                    </label>\n                    <div class="task-actions">\n                        <button class="btn btn-secondary">Edit</button>\n                        <button class="btn btn-danger">Delete</button>\n                    </div>\n                </article>`;
-                list.appendChild(li);
-            }
-
-            if(fab){
-                fab.addEventListener('click', ()=>{
-                    const title = prompt('New task title');
-                    if(title && title.trim()) createTask(title.trim());
-                });
-            }
-        })();
-    </script>
 </main>
