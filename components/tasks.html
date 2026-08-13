@@ -2,6 +2,8 @@
     <header class="tasks-header">
         <h1>Our Tasks</h1>
         <div class="tasks-controls">
+            <a class="btn btn-secondary" href="navbar.html" aria-label="Back to navbar page">Back</a>
+            <button id="themeToggle" class="btn btn-secondary" type="button" aria-label="Toggle page theme">Toggle Theme</button>
             <input id="taskSearch" type="search" placeholder="Search tasks" aria-label="Search tasks">
             <select id="statusFilter" aria-label="Filter by status">
                 <option value="all">All</option>
@@ -85,24 +87,35 @@
     <p class="tasks-note">Tip: Use the search box or filter to find tasks quickly.</p>
 
     <style>
+        body{margin:0;background:#f5f7fb;color:#111827;transition:background-color .2s ease,color .2s ease}
+        body.dark-theme{background:#111827;color:#f3f4f6}
         .tasks-root{font-family:Segoe UI,Roboto,Arial,system-ui;margin:0;padding:1rem}
         .tasks-header{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem}
-        .tasks-controls{display:flex;gap:.5rem}
-        input[type=search]{padding:.5rem .6rem;border:1px solid #d0d7de;border-radius:6px}
-        select{padding:.45rem .6rem;border:1px solid #d0d7de;border-radius:6px;background:#fff}
+        .tasks-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+        input[type=search]{padding:.5rem .6rem;border:1px solid #d0d7de;border-radius:6px;background:#fff;color:#111827}
+        select{padding:.45rem .6rem;border:1px solid #d0d7de;border-radius:6px;background:#fff;color:#111827}
         .task-grid{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
-        .task article{display:flex;justify-content:space-between;align-items:center;padding:.8rem;border:1px solid #e6e9ed;border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,0.03)}
+        .task article{display:flex;justify-content:space-between;align-items:center;padding:.8rem;border:1px solid #e6e9ed;border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,0.03);color:#111827}
         .task-main{display:flex;gap:.75rem;align-items:center;cursor:pointer}
         .task-main input[type=checkbox]{width:18px;height:18px}
         .task h3{margin:0;font-size:1rem}
         .meta{margin:0;color:#6b7280;font-size:.85rem}
         .task-actions{display:flex;gap:.5rem}
-        .btn{padding:.4rem .6rem;border-radius:6px;border:1px solid transparent;font-size:.85rem;cursor:pointer}
+        .btn{padding:.4rem .6rem;border-radius:6px;border:1px solid transparent;font-size:.85rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
         .btn-secondary{background:#f3f4f6;color:#111827;border-color:#e5e7eb}
         .btn-danger{background:#fff5f5;color:#7f1d1d;border-color:#fecaca}
         .btn:focus{outline:2px solid #60a5fa;outline-offset:2px}
         .tasks-note{margin-top:1rem;color:#6b7280;font-size:.9rem}
         .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+        body.dark-theme .tasks-root{color:#f3f4f6}
+        body.dark-theme input[type=search],
+        body.dark-theme select,
+        body.dark-theme .task article,
+        body.dark-theme .btn-secondary{background:#1f2937;color:#f3f4f6;border-color:#374151}
+        body.dark-theme .task article{box-shadow:none}
+        body.dark-theme .meta,
+        body.dark-theme .tasks-note{color:#d1d5db}
+        body.dark-theme .btn-danger{background:#3b1d1d;color:#fecaca;border-color:#7f1d1d}
         @media (max-width:520px){.tasks-header{flex-direction:column;align-items:stretch}.tasks-controls{width:100%}.tasks-controls > *{flex:1}}
     </style>
 
@@ -111,6 +124,7 @@
             const search = document.getElementById('taskSearch');
             const filter = document.getElementById('statusFilter');
             const list = document.getElementById('taskList');
+            const themeToggle = document.getElementById('themeToggle');
 
             function normalize(s){return s.trim().toLowerCase()}
 
@@ -126,6 +140,20 @@
                 });
             }
 
+            function toggleTheme(){
+                document.body.classList.toggle('dark-theme');
+                const isDark = document.body.classList.contains('dark-theme');
+                themeToggle.textContent = isDark ? 'Light Theme' : 'Toggle Theme';
+                localStorage.setItem('taskTheme', isDark ? 'dark' : 'light');
+            }
+
+            const savedTheme = localStorage.getItem('taskTheme');
+            if(savedTheme === 'dark'){
+                document.body.classList.add('dark-theme');
+                themeToggle.textContent = 'Light Theme';
+            }
+
+            themeToggle.addEventListener('click', toggleTheme);
             search.addEventListener('input', applyFilters);
             filter.addEventListener('change', applyFilters);
 
