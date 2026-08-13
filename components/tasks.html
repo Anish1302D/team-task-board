@@ -1,23 +1,148 @@
-<main>
-    <h1>Our Tasks</h1>
+<main class="tasks-root">
+    <header class="tasks-header">
+        <h1>Our Tasks</h1>
+        <div class="tasks-controls">
+            <input id="taskSearch" type="search" placeholder="Search tasks" aria-label="Search tasks">
+            <select id="statusFilter" aria-label="Filter by status">
+                <option value="all">All</option>
+                <option value="completed">Completed</option>
+                <option value="in-progress">In Progress</option>
+                <option value="pending">Pending</option>
+            </select>
+        </div>
+    </header>
 
-    <div class="task">
-        <h3>Learn Git & GitHub</h3>
-        <p>Status: Completed</p>
-    </div>
+    <section aria-labelledby="taskListLabel">
+        <h2 id="taskListLabel" class="visually-hidden">Task list</h2>
 
-    <div class="task">
-        <h3>Build Team Task Board</h3>
-        <p>Status: In Progress</p>
-    </div>
+        <ul class="task-grid" id="taskList">
+            <li class="task" data-status="completed">
+                <article>
+                    <label class="task-main">
+                        <input type="checkbox" checked aria-label="Mark Learn Git & GitHub complete">
+                        <div>
+                            <h3>Learn Git & GitHub</h3>
+                            <p class="meta">Completed</p>
+                        </div>
+                    </label>
+                    <div class="task-actions">
+                        <button class="btn btn-secondary" aria-label="Edit Learn Git & GitHub">Edit</button>
+                        <button class="btn btn-danger" aria-label="Delete Learn Git & GitHub">Delete</button>
+                    </div>
+                </article>
+            </li>
 
-    <div class="task">
-        <h3>Test Pull Requests</h3>
-        <p>Status: Pending</p>
-    </div>
+            <li class="task" data-status="in-progress">
+                <article>
+                    <label class="task-main">
+                        <input type="checkbox" aria-label="Mark Build Team Task Board complete">
+                        <div>
+                            <h3>Build Team Task Board</h3>
+                            <p class="meta">In Progress</p>
+                        </div>
+                    </label>
+                    <div class="task-actions">
+                        <button class="btn btn-secondary" aria-label="Edit Build Team Task Board">Edit</button>
+                        <button class="btn btn-danger" aria-label="Delete Build Team Task Board">Delete</button>
+                    </div>
+                </article>
+            </li>
 
-    <div class="task">
-        <h3>Deploy Website</h3>
-        <p>Status: Pending</p>
-    </div>
+            <li class="task" data-status="pending">
+                <article>
+                    <label class="task-main">
+                        <input type="checkbox" aria-label="Mark Test Pull Requests complete">
+                        <div>
+                            <h3>Test Pull Requests</h3>
+                            <p class="meta">Pending</p>
+                        </div>
+                    </label>
+                    <div class="task-actions">
+                        <button class="btn btn-secondary" aria-label="Edit Test Pull Requests">Edit</button>
+                        <button class="btn btn-danger" aria-label="Delete Test Pull Requests">Delete</button>
+                    </div>
+                </article>
+            </li>
+
+            <li class="task" data-status="pending">
+                <article>
+                    <label class="task-main">
+                        <input type="checkbox" aria-label="Mark Deploy Website complete">
+                        <div>
+                            <h3>Deploy Website</h3>
+                            <p class="meta">Pending</p>
+                        </div>
+                    </label>
+                    <div class="task-actions">
+                        <button class="btn btn-secondary" aria-label="Edit Deploy Website">Edit</button>
+                        <button class="btn btn-danger" aria-label="Delete Deploy Website">Delete</button>
+                    </div>
+                </article>
+            </li>
+        </ul>
+    </section>
+
+    <p class="tasks-note">Tip: Use the search box or filter to find tasks quickly.</p>
+
+    <style>
+        .tasks-root{font-family:Segoe UI,Roboto,Arial,system-ui;margin:0;padding:1rem}
+        .tasks-header{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem}
+        .tasks-controls{display:flex;gap:.5rem}
+        input[type=search]{padding:.5rem .6rem;border:1px solid #d0d7de;border-radius:6px}
+        select{padding:.45rem .6rem;border:1px solid #d0d7de;border-radius:6px;background:#fff}
+        .task-grid{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+        .task article{display:flex;justify-content:space-between;align-items:center;padding:.8rem;border:1px solid #e6e9ed;border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,0.03)}
+        .task-main{display:flex;gap:.75rem;align-items:center;cursor:pointer}
+        .task-main input[type=checkbox]{width:18px;height:18px}
+        .task h3{margin:0;font-size:1rem}
+        .meta{margin:0;color:#6b7280;font-size:.85rem}
+        .task-actions{display:flex;gap:.5rem}
+        .btn{padding:.4rem .6rem;border-radius:6px;border:1px solid transparent;font-size:.85rem;cursor:pointer}
+        .btn-secondary{background:#f3f4f6;color:#111827;border-color:#e5e7eb}
+        .btn-danger{background:#fff5f5;color:#7f1d1d;border-color:#fecaca}
+        .btn:focus{outline:2px solid #60a5fa;outline-offset:2px}
+        .tasks-note{margin-top:1rem;color:#6b7280;font-size:.9rem}
+        .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+        @media (max-width:520px){.tasks-header{flex-direction:column;align-items:stretch}.tasks-controls{width:100%}.tasks-controls > *{flex:1}}
+    </style>
+
+    <script>
+        (function(){
+            const search = document.getElementById('taskSearch');
+            const filter = document.getElementById('statusFilter');
+            const list = document.getElementById('taskList');
+
+            function normalize(s){return s.trim().toLowerCase()}
+
+            function applyFilters(){
+                const q = normalize(search.value);
+                const status = filter.value;
+                Array.from(list.children).forEach(li=>{
+                    const title = normalize(li.querySelector('h3').textContent);
+                    const itemStatus = li.getAttribute('data-status');
+                    const matchesQuery = q === '' || title.includes(q);
+                    const matchesStatus = status === 'all' || itemStatus === status;
+                    li.style.display = (matchesQuery && matchesStatus) ? '' : 'none';
+                });
+            }
+
+            search.addEventListener('input', applyFilters);
+            filter.addEventListener('change', applyFilters);
+
+            // toggle completed state from checkbox
+            list.addEventListener('change', (e)=>{
+                if(e.target.type === 'checkbox'){
+                    const li = e.target.closest('li');
+                    if(e.target.checked){
+                        li.setAttribute('data-status','completed');
+                        li.querySelector('.meta').textContent = 'Completed';
+                    } else {
+                        li.setAttribute('data-status','in-progress');
+                        li.querySelector('.meta').textContent = 'In Progress';
+                    }
+                    applyFilters();
+                }
+            });
+        })();
+    </script>
 </main>
