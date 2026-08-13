@@ -100,5 +100,38 @@
                 flex-wrap: wrap;
             }
         }
+                /* Taskbar page styles */
+                .container{max-width:900px;margin:2rem auto;padding:1rem}
+                .card{background:#fff;padding:1rem;border-radius:8px;box-shadow:0 1px 3px rgba(16,24,40,0.06)}
+                .actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:0.75rem}
+                .actions button{padding:.5rem .75rem;border-radius:6px;border:1px solid #e5e7eb;background:#f3f4f6;cursor:pointer}
     </style>
 </nav>
+
+<main class="container" id="taskbarRoot">
+    <section class="card">
+        <h1 style="margin-top:0">Taskbar</h1>
+        <p>Quick actions and shortcuts for managing tasks.</p>
+
+        <div class="actions">
+            <button id="openTasks">Open Tasks</button>
+            <button id="newTask">Create New Task</button>
+            <button id="refresh">Refresh</button>
+        </div>
+
+        <div id="status" style="margin-top:1rem;color:#374151"></div>
+    </section>
+</main>
+
+<script>
+    (function(){
+        const openTasks = document.getElementById('openTasks');
+        const newTask = document.getElementById('newTask');
+        const refresh = document.getElementById('refresh');
+        const status = document.getElementById('status');
+
+        if(openTasks) openTasks.addEventListener('click', ()=>{ window.location.href = 'tasks.html'; });
+        if(newTask) newTask.addEventListener('click', ()=>{ status.textContent = 'Create task clicked (placeholder)'; });
+        if(refresh) refresh.addEventListener('click', ()=>{ status.textContent = 'Refreshed at ' + new Date().toLocaleTimeString(); });
+    })();
+</script>
