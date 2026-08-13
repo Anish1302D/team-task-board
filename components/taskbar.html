@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Taskbar</title>
+  <style>
+    body{font-family:Segoe UI,Roboto,Arial,system-ui;margin:0;padding:0;background:#f6f8fa}
+    nav{display:flex;justify-content:space-between;align-items:center;padding:1rem;background:#111827;color:#fff}
+    nav a{color:inherit;margin-right:1rem;text-decoration:none}
+    .container{max-width:900px;margin:2rem auto;padding:1rem}
+    .card{background:#fff;padding:1rem;border-radius:8px;box-shadow:0 1px 3px rgba(16,24,40,0.06)}
+    .actions{display:flex;gap:.5rem;flex-wrap:wrap}
+    .actions button{padding:.5rem .75rem;border-radius:6px;border:1px solid #e5e7eb;background:#f3f4f6}
+  </style>
+</head>
+<body>
+<nav>
+    <div class="nav-section brand-section">
+        <h2 style="margin:0;font-size:1.125rem">Team Task Board</h2>
+    </div>
+
+    <div class="nav-section links-section">
+        <a href="#">Home</a>
+        <a href="tasks.html">Tasks</a>
+        <a href="#">Team</a>
+        <a href="taskbar.html" class="taskbar-link">Taskbar</a>
+    </div>
+
+    <div class="nav-section actions-section">
+        <a href="#">Dashboard</a>
+        <a href="#">Profile</a>
+    </div>
+</nav>
+
+<main class="container">
+  <section class="card">
+    <h1>Taskbar</h1>
+    <p>Quick actions and shortcuts for managing tasks.</p>
+
+    <div class="actions">
+      <button id="openTasks">Open Tasks</button>
+      <button id="newTask">Create New Task</button>
+      <button id="refresh">Refresh</button>
+    </div>
+
+    <div id="status" style="margin-top:1rem;color:#374151"></div>
+  </section>
+</main>
+
+<script>
+  document.getElementById('openTasks').addEventListener('click', ()=>{
+    // navigate to the tasks view in the same folder
+    window.location.href = 'tasks.html';
+  });
+
+  document.getElementById('newTask').addEventListener('click', ()=>{
+    document.getElementById('status').textContent = 'Create task clicked (placeholder)';
+  });
+
+  document.getElementById('refresh').addEventListener('click', ()=>{
+    document.getElementById('status').textContent = 'Refreshed at ' + new Date().toLocaleTimeString();
+  });
+</script>
+</body>
+</html>
