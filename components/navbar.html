@@ -1,11 +1,12 @@
 <nav class="topbar" aria-label="Main navigation">
     <div class="nav-section brand-section">
-        <h2>Team Task Board</h2>
+        <h2><span class="logo">TT</span> Team Task Board</h2>
     </div>
 
-    <div class="nav-section links-section">
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-section links-section" id="navLinks">
         <a href="#">Home</a>
-        <a href="tasks.html">Tasks</a>
+        <a href="tasks.html" class="active">Tasks</a>
         <a href="#">Team</a>
     </div>
 
@@ -16,12 +17,12 @@
 
     <style>
         :root {
-            --nav-bg: #111827;
-            --nav-text: #f9fafb;
-            --nav-muted: #d1d5db;
-            --nav-accent: #60a5fa;
-            --nav-hover: #1f2937;
-            --nav-border: rgba(255, 255, 255, 0.12);
+            --nav-bg: #0f1724;
+            --nav-text: #f8fafc;
+            --nav-muted: #c7ccd1;
+            --nav-accent: #3b82f6;
+            --nav-hover: #111827;
+            --nav-border: rgba(255, 255, 255, 0.06);
         }
 
         * { box-sizing: border-box; }
@@ -52,24 +53,31 @@
 
         .brand-section h2 {
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             letter-spacing: 0.02em;
+            display:flex;align-items:center;gap:.6rem
         }
+
+        .logo{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:var(--nav-accent);color:#fff;font-weight:800}
 
         .links-section {
             justify-content: center;
             flex: 1;
+            display:flex;gap:.25rem;align-items:center
         }
 
         .topbar a {
             color: var(--nav-muted);
             text-decoration: none;
             font-weight: 600;
-            padding: 0.55rem 0.8rem;
-            border-radius: 8px;
-            transition: all 0.2s ease;
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            transition: all 0.18s cubic-bezier(.2,.8,.2,1);
+            font-size:.95rem
         }
+
+        .topbar a.active{background:linear-gradient(90deg,var(--nav-accent),#60a5fa);color:#fff;box-shadow:0 6px 16px rgba(59,130,246,0.12)}
 
         .topbar a:hover,
         .topbar a:focus-visible {
@@ -81,6 +89,8 @@
         .actions-section {
             margin-left: auto;
         }
+
+        .nav-toggle{display:none;background:transparent;border:1px solid transparent;color:var(--nav-text);font-size:1.05rem;padding:.35rem .6rem;border-radius:6px}
 
         @media (max-width: 720px) {
             .topbar {
@@ -95,6 +105,12 @@
                 width: 100%;
                 justify-content: center;
             }
+
+            .nav-toggle{display:inline-flex;margin-left:auto}
+
+            #navLinks{display:none;width:100%;justify-content:center}
+
+            #navLinks.show{display:flex}
 
             .links-section {
                 flex-wrap: wrap;

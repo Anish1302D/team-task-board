@@ -24,7 +24,7 @@
                         <input type="checkbox" checked aria-label="Mark Learn Git & GitHub complete">
                         <div>
                             <h3>Learn Git & GitHub</h3>
-                            <p class="meta">Completed</p>
+                            <p class="meta"><span class="status-badge">Completed</span></p>
                         </div>
                     </label>
                     <div class="task-actions">
@@ -40,7 +40,7 @@
                         <input type="checkbox" aria-label="Mark Build Team Task Board complete">
                         <div>
                             <h3>Build Team Task Board</h3>
-                            <p class="meta">In Progress</p>
+                            <p class="meta"><span class="status-badge">In Progress</span></p>
                         </div>
                     </label>
                     <div class="task-actions">
@@ -56,7 +56,7 @@
                         <input type="checkbox" aria-label="Mark Test Pull Requests complete">
                         <div>
                             <h3>Test Pull Requests</h3>
-                            <p class="meta">Pending</p>
+                            <p class="meta"><span class="status-badge">Pending</span></p>
                         </div>
                     </label>
                     <div class="task-actions">
@@ -72,7 +72,7 @@
                         <input type="checkbox" aria-label="Mark Deploy Website complete">
                         <div>
                             <h3>Deploy Website</h3>
-                            <p class="meta">Pending</p>
+                            <p class="meta"><span class="status-badge">Pending</span></p>
                         </div>
                     </label>
                     <div class="task-actions">
@@ -101,6 +101,14 @@
         .task h3{margin:0;font-size:1rem}
         .meta{margin:0;color:#6b7280;font-size:.85rem}
         .task-actions{display:flex;gap:.5rem}
+        .task article:hover{transform:translateY(-4px);transition:transform .12s ease,box-shadow .12s ease;box-shadow:0 8px 24px rgba(16,24,40,0.06)}
+        .status-badge{display:inline-block;padding:.25rem .5rem;border-radius:999px;font-weight:700;font-size:.78rem}
+        li[data-status="completed"] .status-badge{background:#dcfce7;color:#166534}
+        li[data-status="in-progress"] .status-badge{background:#fef3c7;color:#92400e}
+        li[data-status="pending"] .status-badge{background:#e0f2fe;color:#075985}
+
+        .fab{position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;display:inline-grid;place-items:center;font-size:28px;background:#2563eb;color:#fff;border:none;box-shadow:0 8px 24px rgba(37,99,235,0.18);cursor:pointer}
+        .fab:focus{outline:3px solid rgba(37,99,235,0.18);outline-offset:4px}
         .btn{padding:.4rem .6rem;border-radius:6px;border:1px solid transparent;font-size:.85rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
         .btn-secondary{background:#f3f4f6;color:#111827;border-color:#e5e7eb}
         .btn-danger{background:#fff5f5;color:#7f1d1d;border-color:#fecaca}
@@ -171,6 +179,29 @@
                     applyFilters();
                 }
             });
+        })();
+    </script>
+
+    <button id="addTaskFab" class="fab" aria-label="Add Task">+</button>
+
+    <script>
+        (function(){
+            const fab = document.getElementById('addTaskFab');
+            const list = document.getElementById('taskList');
+            function createTask(title){
+                const li = document.createElement('li');
+                li.className = 'task';
+                li.setAttribute('data-status','pending');
+                li.innerHTML = `<article>\n                    <label class="task-main">\n                        <input type="checkbox" aria-label="Mark ${title} complete">\n                        <div>\n                            <h3>${title}</h3>\n                            <p class="meta"><span class="status-badge">Pending</span></p>\n                        </div>\n                    </label>\n                    <div class="task-actions">\n                        <button class="btn btn-secondary">Edit</button>\n                        <button class="btn btn-danger">Delete</button>\n                    </div>\n                </article>`;
+                list.appendChild(li);
+            }
+
+            if(fab){
+                fab.addEventListener('click', ()=>{
+                    const title = prompt('New task title');
+                    if(title && title.trim()) createTask(title.trim());
+                });
+            }
         })();
     </script>
 </main>
