@@ -1,4 +1,4 @@
-<nav>
+<nav class="topbar" aria-label="Main navigation">
     <div class="nav-section brand-section">
         <h2>Team Task Board</h2>
     </div>
@@ -7,11 +7,98 @@
         <a href="#">Home</a>
         <a href="tasks.html">Tasks</a>
         <a href="#">Team</a>
-        <a href="taskbar.html" class="taskbar-link">Taskbar</a>
     </div>
 
     <div class="nav-section actions-section">
         <a href="#">Dashboard</a>
         <a href="#">Profile</a>
     </div>
+
+    <style>
+        :root {
+            --nav-bg: #111827;
+            --nav-text: #f9fafb;
+            --nav-muted: #d1d5db;
+            --nav-accent: #60a5fa;
+            --nav-hover: #1f2937;
+            --nav-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f4f6;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            padding: 1rem 2rem;
+            background: var(--nav-bg);
+            color: var(--nav-text);
+            border-bottom: 1px solid var(--nav-border);
+            box-shadow: 0 4px 12px rgba(17, 24, 39, 0.12);
+        }
+
+        .nav-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-section h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .links-section {
+            justify-content: center;
+            flex: 1;
+        }
+
+        .topbar a {
+            color: var(--nav-muted);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.55rem 0.8rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .topbar a:hover,
+        .topbar a:focus-visible {
+            background: var(--nav-hover);
+            color: var(--nav-text);
+            outline: none;
+        }
+
+        .actions-section {
+            margin-left: auto;
+        }
+
+        @media (max-width: 720px) {
+            .topbar {
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 1rem;
+            }
+
+            .brand-section,
+            .links-section,
+            .actions-section {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .links-section {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </nav>
