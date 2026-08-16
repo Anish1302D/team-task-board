@@ -109,6 +109,7 @@ const server = http.createServer(async (req, res) => {
       const body = await parseBody(req);
       const title = String(body.title || '').trim();
       const status = ['pending', 'in-progress', 'completed'].includes(body.status) ? body.status : 'pending';
+      const priority = ['low', 'medium', 'high'].includes(body.priority) ? body.priority : 'medium';
 
       if (!title) {
         sendJson(res, 400, { error: 'Task title is required' });
@@ -119,7 +120,8 @@ const server = http.createServer(async (req, res) => {
       const newTask = {
         id: Date.now(),
         title,
-        status
+        status,
+        priority
       };
 
       tasks.push(newTask);
@@ -148,6 +150,10 @@ const server = http.createServer(async (req, res) => {
         if (body.status !== undefined) {
           const nextStatus = ['pending', 'in-progress', 'completed'].includes(body.status) ? body.status : tasks[taskIndex].status;
           tasks[taskIndex].status = nextStatus;
+        }
+        if (body.priority !== undefined) {
+          const nextPriority = ['low', 'medium', 'high'].includes(body.priority) ? body.priority : tasks[taskIndex].priority || 'medium';
+          tasks[taskIndex].priority = nextPriority;
         }
         writeTasks(tasks);
         sendJson(res, 200, tasks[taskIndex]);
