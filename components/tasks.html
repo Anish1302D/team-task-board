@@ -3,8 +3,27 @@
         <h1>Our Tasks</h1>
         <div class="tasks-controls">
             <a class="btn btn-secondary" href="navbar.html" aria-label="Back to navbar page">Back</a>
-            <button id="themeToggle" class="btn btn-secondary" type="button" aria-label="Toggle page theme">Toggle Theme</button>
-            <button id="calendarBtn" class="btn btn-secondary" type="button" aria-label="Open calendar">📅 Calendar</button>
+            <button id="themeToggle" class="btn btn-secondary" type="button" aria-label="Toggle page theme">Toggle
+                Theme</button>
+            <button id="calendarBtn" class="btn btn-secondary" type="button" aria-label="Open calendar">📅
+                Calendar</button>
+            <div id="calendarPanel" class="calendar-panel hidden" aria-live="polite">
+                <div class="calendar-header">
+                    <button type="button" id="calendarPrev" class="calendar-nav" aria-label="Previous month">‹</button>
+                    <strong id="calendarMonthLabel">Month</strong>
+                    <button type="button" id="calendarNext" class="calendar-nav" aria-label="Next month">›</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
+                </div>
+                <div id="calendarGrid" class="calendar-grid"></div>
+            </div>
             <input id="taskSearch" type="search" placeholder="Search tasks" aria-label="Search tasks">
             <select id="statusFilter" aria-label="Filter by status">
                 <option value="all">All</option>
@@ -20,72 +39,354 @@
         <ul class="task-grid" id="taskList"></ul>
     </section>
 
+    <p id="calendarStatus" class="tasks-note">No date selected.</p>
     <p class="tasks-note">Tip: Use the search box or filter to find tasks quickly.</p>
 
     <div id="taskFormContainer" style="display:none; margin-top:1rem;">
-        <form id="taskForm" style="max-width:420px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:1rem; box-shadow:0 1px 3px rgba(16,24,40,0.06);">
+        <form id="taskForm"
+            style="max-width:420px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:1rem; box-shadow:0 1px 3px rgba(16,24,40,0.06);">
             <h3 style="margin-top:0; margin-bottom:0.75rem;">Create New Task</h3>
             <label style="display:block; font-weight:600; margin-bottom:0.75rem;">
                 Task title
-                <input id="taskTitleInput" type="text" placeholder="Enter task title" required style="width:100%; margin-top:0.35rem; padding:0.65rem 0.75rem; border:1px solid #d1d5db; border-radius:8px;">
+                <input id="taskTitleInput" type="text" placeholder="Enter task title" required
+                    style="width:100%; margin-top:0.35rem; padding:0.65rem 0.75rem; border:1px solid #d1d5db; border-radius:8px;">
             </label>
             <label style="display:block; font-weight:600; margin-bottom:0.75rem;">
                 Status
-                <select id="taskStatusInput" style="width:100%; margin-top:0.35rem; padding:0.65rem 0.75rem; border:1px solid #d1d5db; border-radius:8px;">
+                <select id="taskStatusInput"
+                    style="width:100%; margin-top:0.35rem; padding:0.65rem 0.75rem; border:1px solid #d1d5db; border-radius:8px;">
                     <option value="pending">Pending</option>
                     <option value="in-progress">In Progress</option>
                     <option value="completed">Completed</option>
                 </select>
             </label>
             <div style="display:flex; gap:0.75rem;">
-                <button type="submit" class="btn btn-secondary" style="background:#111827;color:#fff;">Save Task</button>
+                <button type="submit" class="btn btn-secondary" style="background:#111827;color:#fff;">Save
+                    Task</button>
                 <button type="button" id="cancelTaskForm" class="btn btn-secondary">Cancel</button>
             </div>
         </form>
     </div>
 
     <style>
-        body{margin:0;background:#f5f7fb;color:#111827;transition:background-color .2s ease,color .2s ease}
-        body.dark-theme{background:#111827;color:#f3f4f6}
-        .tasks-root{font-family:Segoe UI,Roboto,Arial,system-ui;margin:0;padding:1rem}
-        .tasks-header{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem}
-        .tasks-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
-        input[type=search]{padding:.5rem .6rem;border:1px solid #d0d7de;border-radius:6px;background:#fff;color:#111827}
-        select{padding:.45rem .6rem;border:1px solid #d0d7de;border-radius:6px;background:#fff;color:#111827}
-        .task-grid{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
-        .task article{display:flex;justify-content:space-between;align-items:center;padding:.8rem;border:1px solid #e6e9ed;border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,0.03);color:#111827}
-        .task-main{display:flex;gap:.75rem;align-items:center;cursor:pointer}
-        .task-main input[type=checkbox]{width:18px;height:18px}
-        .task h3{margin:0;font-size:1rem}
-        .meta{margin:0;color:#6b7280;font-size:.85rem}
-        .task-actions{display:flex;gap:.5rem}
-        .task article:hover{transform:translateY(-4px);transition:transform .12s ease,box-shadow .12s ease;box-shadow:0 8px 24px rgba(16,24,40,0.06)}
-        .status-badge{display:inline-block;padding:.25rem .5rem;border-radius:999px;font-weight:700;font-size:.78rem}
-        li[data-status="completed"] .status-badge{background:#dcfce7;color:#166534}
-        li[data-status="in-progress"] .status-badge{background:#fef3c7;color:#92400e}
-        li[data-status="pending"] .status-badge{background:#e0f2fe;color:#075985}
-        .fab{position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;display:inline-grid;place-items:center;font-size:28px;background:#2563eb;color:#fff;border:none;box-shadow:0 8px 24px rgba(37,99,235,0.18);cursor:pointer}
-        .fab:focus{outline:3px solid rgba(37,99,235,0.18);outline-offset:4px}
-        .btn{padding:.4rem .6rem;border-radius:6px;border:1px solid transparent;font-size:.85rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
-        .btn-secondary{background:#f3f4f6;color:#111827;border-color:#e5e7eb}
-        .btn-danger{background:#fff5f5;color:#7f1d1d;border-color:#fecaca}
-        .btn:focus{outline:2px solid #60a5fa;outline-offset:2px}
-        .tasks-note{margin-top:1rem;color:#6b7280;font-size:.9rem}
-        .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-        body.dark-theme .tasks-root{color:#f3f4f6}
+        body {
+            margin: 0;
+            background: #f5f7fb;
+            color: #111827;
+            transition: background-color .2s ease, color .2s ease
+        }
+
+        body.dark-theme {
+            background: #111827;
+            color: #f3f4f6
+        }
+
+        .tasks-root {
+            font-family: Segoe UI, Roboto, Arial, system-ui;
+            margin: 0;
+            padding: 1rem
+        }
+
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem
+        }
+
+        .tasks-controls {
+            position: relative;
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        input[type=search] {
+            padding: .5rem .6rem;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            background: #fff;
+            color: #111827
+        }
+
+        select {
+            padding: .45rem .6rem;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            background: #fff;
+            color: #111827
+        }
+
+        .task-grid {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem
+        }
+
+        .task article {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .8rem;
+            border: 1px solid #e6e9ed;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+            color: #111827
+        }
+
+        .task-main {
+            display: flex;
+            gap: .75rem;
+            align-items: center;
+            cursor: pointer
+        }
+
+        .task-main input[type=checkbox] {
+            width: 18px;
+            height: 18px
+        }
+
+        .task h3 {
+            margin: 0;
+            font-size: 1rem
+        }
+
+        .meta {
+            margin: 0;
+            color: #6b7280;
+            font-size: .85rem
+        }
+
+        .task-actions {
+            display: flex;
+            gap: .5rem
+        }
+
+        .task article:hover {
+            transform: translateY(-4px);
+            transition: transform .12s ease, box-shadow .12s ease;
+            box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06)
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: .25rem .5rem;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: .78rem
+        }
+
+        li[data-status="completed"] .status-badge {
+            background: #dcfce7;
+            color: #166534
+        }
+
+        li[data-status="in-progress"] .status-badge {
+            background: #fef3c7;
+            color: #92400e
+        }
+
+        li[data-status="pending"] .status-badge {
+            background: #e0f2fe;
+            color: #075985
+        }
+
+        .fab {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: inline-grid;
+            place-items: center;
+            font-size: 28px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.18);
+            cursor: pointer
+        }
+
+        .fab:focus {
+            outline: 3px solid rgba(37, 99, 235, 0.18);
+            outline-offset: 4px
+        }
+
+        .btn {
+            padding: .4rem .6rem;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            font-size: .85rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #111827;
+            border-color: #e5e7eb
+        }
+
+        .btn-danger {
+            background: #fff5f5;
+            color: #7f1d1d;
+            border-color: #fecaca
+        }
+
+        .calendar-panel {
+            position: fixed;
+            z-index: 30;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            padding: 0.75rem;
+            min-width: 260px;
+            max-width: min(260px, calc(100vw - 2rem));
+            left: 16px;
+            top: 16px;
+        }
+
+        .calendar-panel.hidden {
+            display: none;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            gap: 0.5rem;
+        }
+
+        .calendar-nav {
+            border: 1px solid #d1d5db;
+            background: #f3f4f6;
+            color: #111827;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .calendar-weekdays,
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.25rem;
+        }
+
+        .calendar-weekdays {
+            color: #6b7280;
+            font-size: 0.72rem;
+            margin-bottom: 0.35rem;
+            text-align: center;
+        }
+
+        .calendar-day {
+            width: 100%;
+            aspect-ratio: 1;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: #f9fafb;
+            color: #111827;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .calendar-day.muted {
+            opacity: 0.45;
+        }
+
+        .calendar-day.is-selected {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        .calendar-day:hover {
+            border-color: #93c5fd;
+        }
+
+        .btn:focus {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px
+        }
+
+        .tasks-note {
+            margin-top: 1rem;
+            color: #6b7280;
+            font-size: .9rem
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            white-space: nowrap;
+            border: 0
+        }
+
+        body.dark-theme .tasks-root {
+            color: #f3f4f6
+        }
+
         body.dark-theme input[type=search],
         body.dark-theme select,
         body.dark-theme .task article,
-        body.dark-theme .btn-secondary{background:#1f2937;color:#f3f4f6;border-color:#374151}
-        body.dark-theme .task article{box-shadow:none}
+        body.dark-theme .btn-secondary {
+            background: #1f2937;
+            color: #f3f4f6;
+            border-color: #374151
+        }
+
+        body.dark-theme .task article {
+            box-shadow: none
+        }
+
         body.dark-theme .meta,
-        body.dark-theme .tasks-note{color:#d1d5db}
-        body.dark-theme .btn-danger{background:#3b1d1d;color:#fecaca;border-color:#7f1d1d}
-        @media (max-width:520px){.tasks-header{flex-direction:column;align-items:stretch}.tasks-controls{width:100%}.tasks-controls > *{flex:1}}
+        body.dark-theme .tasks-note {
+            color: #d1d5db
+        }
+
+        body.dark-theme .btn-danger {
+            background: #3b1d1d;
+            color: #fecaca;
+            border-color: #7f1d1d
+        }
+
+        @media (max-width:520px) {
+            .tasks-header {
+                flex-direction: column;
+                align-items: stretch
+            }
+
+            .tasks-controls {
+                width: 100%
+            }
+
+            .tasks-controls>* {
+                flex: 1
+            }
+        }
     </style>
 
     <script>
-        (function(){
+        (function () {
             const search = document.getElementById('taskSearch');
             const filter = document.getElementById('statusFilter');
             const list = document.getElementById('taskList');
@@ -95,6 +396,15 @@
             const taskTitleInput = document.getElementById('taskTitleInput');
             const taskStatusInput = document.getElementById('taskStatusInput');
             const cancelTaskForm = document.getElementById('cancelTaskForm');
+            const calendarBtn = document.getElementById('calendarBtn');
+            const calendarPanel = document.getElementById('calendarPanel');
+            const calendarMonthLabel = document.getElementById('calendarMonthLabel');
+            const calendarGrid = document.getElementById('calendarGrid');
+            const calendarPrev = document.getElementById('calendarPrev');
+            const calendarNext = document.getElementById('calendarNext');
+            const calendarStatus = document.getElementById('calendarStatus');
+            let calendarViewDate = new Date();
+            let selectedCalendarDate = null;
 
             function normalize(value) {
                 return (value || '').trim().toLowerCase();
@@ -219,6 +529,125 @@
             themeToggle.addEventListener('click', toggleTheme);
             search.addEventListener('input', applyFilters);
             filter.addEventListener('change', applyFilters);
+
+            function formatSelectedDate(date) {
+                return new Date(date.getFullYear(), date.getMonth(), date.getDate()).toLocaleDateString(undefined, {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+
+            function setSelectedDate(date) {
+                selectedCalendarDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                calendarStatus.textContent = `Selected date: ${formatSelectedDate(selectedCalendarDate)}`;
+                calendarPanel.classList.add('hidden');
+                renderCalendar();
+            }
+
+            function renderCalendar() {
+                if (!calendarMonthLabel || !calendarGrid) return;
+
+                const view = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth(), 1);
+                const firstDayOfMonth = new Date(view.getFullYear(), view.getMonth(), 1);
+                const lastDayOfMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0);
+                const startIndex = (firstDayOfMonth.getDay() + 6) % 7;
+                const totalCells = Math.ceil((startIndex + lastDayOfMonth.getDate()) / 7) * 7;
+
+                calendarMonthLabel.textContent = view.toLocaleDateString(undefined, {
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+                calendarGrid.innerHTML = '';
+
+                const prevMonthLastDay = new Date(view.getFullYear(), view.getMonth(), 0).getDate();
+                for (let index = 0; index < totalCells; index += 1) {
+                    const dayNumber = index - startIndex + 1;
+                    const cellDate = new Date(view.getFullYear(), view.getMonth(), dayNumber);
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'calendar-day';
+                    button.textContent = String(cellDate.getDate());
+
+                    const isCurrentMonth = cellDate.getMonth() === view.getMonth();
+                    if (!isCurrentMonth) {
+                        button.classList.add('muted');
+                    }
+
+                    if (selectedCalendarDate && cellDate.getTime() === selectedCalendarDate.getTime()) {
+                        button.classList.add('is-selected');
+                    }
+
+                    button.addEventListener('click', () => setSelectedDate(cellDate));
+                    calendarGrid.appendChild(button);
+                }
+            }
+
+            function positionCalendar() {
+                if (!calendarPanel || calendarPanel.classList.contains('hidden')) return;
+
+                const padding = 16;
+                const panelWidth = Math.min(calendarPanel.offsetWidth || 260, window.innerWidth - padding * 2);
+                const panelHeight = calendarPanel.offsetHeight || 280;
+                const buttonRect = calendarBtn?.getBoundingClientRect();
+                const top = buttonRect ? Math.min(
+                    Math.max(padding, buttonRect.bottom + 8),
+                    window.innerHeight - panelHeight - padding
+                ) : padding;
+                const left = buttonRect ? Math.min(
+                    Math.max(padding, buttonRect.left),
+                    window.innerWidth - panelWidth - padding
+                ) : padding;
+
+                calendarPanel.style.left = `${left}px`;
+                calendarPanel.style.top = `${top}px`;
+                calendarPanel.style.maxWidth = `${window.innerWidth - padding * 2}px`;
+            }
+
+            function openCalendar() {
+                if (!calendarPanel) return;
+                calendarPanel.classList.remove('hidden');
+                renderCalendar();
+                requestAnimationFrame(positionCalendar);
+            }
+
+            if (calendarBtn) {
+                calendarBtn.addEventListener('click', openCalendar);
+            }
+
+            if (calendarPrev) {
+                calendarPrev.addEventListener('click', () => {
+                    calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1);
+                    renderCalendar();
+                });
+            }
+
+            if (calendarNext) {
+                calendarNext.addEventListener('click', () => {
+                    calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1);
+                    renderCalendar();
+                });
+            }
+
+            document.addEventListener('click', (event) => {
+                const clickedWithinCalendar = event.target.closest('#calendarPanel') || event.target.closest('#calendarBtn');
+                if (!clickedWithinCalendar && calendarPanel) {
+                    calendarPanel.classList.add('hidden');
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (calendarPanel && !calendarPanel.classList.contains('hidden')) {
+                    positionCalendar();
+                }
+            });
+
+            if (!selectedCalendarDate) {
+                calendarStatus.textContent = 'No date selected.';
+            }
+
+            renderCalendar();
 
             function showTaskForm() {
                 taskFormContainer.style.display = 'block';
