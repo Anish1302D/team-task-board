@@ -3,8 +3,10 @@
         <h1>Our Tasks</h1>
         <div class="tasks-controls">
             <a class="btn btn-secondary" href="navbar.html" aria-label="Back to navbar page">Back</a>
-            <button id="themeToggle" class="btn btn-secondary" type="button" aria-label="Toggle page theme">Toggle Theme</button>
-            <button id="calendarBtn" class="btn btn-secondary" type="button" aria-label="Open calendar">📅 Calendar</button>
+            <button id="themeToggle" class="btn btn-secondary" type="button" aria-label="Toggle page theme">Toggle
+                Theme</button>
+            <button id="calendarBtn" class="btn btn-secondary" type="button" aria-label="Open calendar">📅
+                Calendar</button>
             <div id="calendarPanel" class="calendar-panel hidden" aria-live="polite">
                 <div class="calendar-header">
                     <button type="button" id="calendarPrev" class="calendar-nav" aria-label="Previous month">‹</button>
@@ -22,7 +24,15 @@
                 </div>
                 <div id="calendarGrid" class="calendar-grid"></div>
             </div>
-            <button id="priorityBtn" class="btn btn-secondary" type="button" aria-label="Set priority">⭐ Priority</button>
+            <div class="priority-wrapper">
+                <button id="priorityBtn" class="btn btn-secondary" type="button" aria-label="Set priority">⭐ Medium
+                    Priority</button>
+                <div id="priorityMenu" class="priority-menu hidden" role="menu" aria-label="Select task priority">
+                    <button type="button" class="priority-option" data-priority="high" role="menuitem">High</button>
+                    <button type="button" class="priority-option" data-priority="medium" role="menuitem">Medium</button>
+                    <button type="button" class="priority-option" data-priority="low" role="menuitem">Low</button>
+                </div>
+            </div>
             <input id="taskSearch" type="search" placeholder="Search tasks" aria-label="Search tasks">
             <select id="statusFilter" aria-label="Filter by status">
                 <option value="all">All</option>
@@ -57,6 +67,15 @@
                     <option value="pending">Pending</option>
                     <option value="in-progress">In Progress</option>
                     <option value="completed">Completed</option>
+                </select>
+            </label>
+            <label style="display:block; font-weight:600; margin-bottom:0.75rem;">
+                Priority
+                <select id="taskPriorityInput"
+                    style="width:100%; margin-top:0.35rem; padding:0.65rem 0.75rem; border:1px solid #d1d5db; border-radius:8px;">
+                    <option value="high">High</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="low">Low</option>
                 </select>
             </label>
             <div style="display:flex; gap:0.75rem;">
@@ -317,6 +336,71 @@
             border-color: #93c5fd;
         }
 
+        .priority-wrapper {
+            position: relative;
+        }
+
+        .priority-menu {
+            position: absolute;
+            top: calc(100% + 0.4rem);
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 140px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+            padding: 0.35rem;
+            z-index: 25;
+        }
+
+        .priority-menu.hidden {
+            display: none;
+        }
+
+        .priority-option {
+            border: none;
+            background: #f3f4f6;
+            color: #111827;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .priority-option:hover,
+        .priority-option.active {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: .2rem .45rem;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 700;
+            margin-left: .35rem;
+        }
+
+        .priority-badge.high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-badge.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-badge.low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
         .btn:focus {
             outline: 2px solid #60a5fa;
             outline-offset: 2px
@@ -394,6 +478,7 @@
             const taskForm = document.getElementById('taskForm');
             const taskTitleInput = document.getElementById('taskTitleInput');
             const taskStatusInput = document.getElementById('taskStatusInput');
+            const taskPriorityInput = document.getElementById('taskPriorityInput');
             const cancelTaskForm = document.getElementById('cancelTaskForm');
             const calendarBtn = document.getElementById('calendarBtn');
             const calendarPanel = document.getElementById('calendarPanel');
@@ -402,8 +487,12 @@
             const calendarPrev = document.getElementById('calendarPrev');
             const calendarNext = document.getElementById('calendarNext');
             const calendarStatus = document.getElementById('calendarStatus');
+            const priorityBtn = document.getElementById('priorityBtn');
+            const priorityMenu = document.getElementById('priorityMenu');
+            const priorityOptions = Array.from(document.querySelectorAll('.priority-option'));
             let calendarViewDate = new Date();
             let selectedCalendarDate = null;
+            let selectedPriority = 'medium';
 
             function normalize(value) {
                 return (value || '').trim().toLowerCase();
@@ -416,6 +505,15 @@
                     pending: 'Pending'
                 };
                 return labels[status] || 'Pending';
+            }
+
+            function priorityLabel(priority) {
+                const labels = {
+                    high: 'High',
+                    medium: 'Medium',
+                    low: 'Low'
+                };
+                return labels[priority] || 'Medium';
             }
 
             function renderTasks(tasks) {
@@ -431,7 +529,10 @@
                                 <input type="checkbox" ${task.status === 'completed' ? 'checked' : ''} aria-label="Mark ${task.title} complete">
                                 <div>
                                     <h3>${task.title}</h3>
-                                    <p class="meta"><span class="status-badge">${statusLabel(task.status)}</span></p>
+                                    <p class="meta">
+                                        <span class="status-badge">${statusLabel(task.status)}</span>
+                                        <span class="priority-badge ${task.priority || 'medium'}">${priorityLabel(task.priority || 'medium')}</span>
+                                    </p>
                                 </div>
                             </label>
                             <div class="task-actions">
@@ -525,9 +626,46 @@
                 themeToggle.textContent = 'Light Theme';
             }
 
+            function updatePrioritySelection(value) {
+                const valid = ['high', 'medium', 'low'].includes(value) ? value : 'medium';
+                selectedPriority = valid;
+                if (taskPriorityInput) taskPriorityInput.value = valid;
+                if (priorityBtn) priorityBtn.textContent = `⭐ ${priorityLabel(valid)} Priority`;
+                priorityOptions.forEach((option) => {
+                    const isActive = option.dataset.priority === valid;
+                    option.classList.toggle('active', isActive);
+                    option.setAttribute('aria-checked', String(isActive));
+                });
+            }
+
             themeToggle.addEventListener('click', toggleTheme);
             search.addEventListener('input', applyFilters);
             filter.addEventListener('change', applyFilters);
+
+            if (priorityBtn) {
+                priorityBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    if (!priorityMenu) return;
+                    priorityMenu.classList.toggle('hidden');
+                });
+            }
+
+            priorityOptions.forEach((option) => {
+                option.addEventListener('click', (event) => {
+                    const nextPriority = event.currentTarget.dataset.priority;
+                    updatePrioritySelection(nextPriority);
+                    if (priorityMenu) priorityMenu.classList.add('hidden');
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                const clickedInsidePriority = event.target.closest('#priorityBtn') || event.target.closest('#priorityMenu');
+                if (!clickedInsidePriority && priorityMenu) {
+                    priorityMenu.classList.add('hidden');
+                }
+            });
+
+            updatePrioritySelection(selectedPriority);
 
             function formatSelectedDate(date) {
                 return new Date(date.getFullYear(), date.getMonth(), date.getDate()).toLocaleDateString(undefined, {
@@ -672,7 +810,7 @@
                     const response = await fetch('/api/tasks', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ title, status })
+                        body: JSON.stringify({ title, status, priority: taskPriorityInput ? taskPriorityInput.value : selectedPriority })
                     });
 
                     if (response.ok) {
